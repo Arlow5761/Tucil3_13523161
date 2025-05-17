@@ -1,0 +1,7 @@
+{
+  "name": "rush-hour-solver",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "raylib"
+  ]
+}
