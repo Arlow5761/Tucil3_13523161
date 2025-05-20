@@ -31,6 +31,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_PATH})
 # Add executable
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 add_executable(rush-hour-solver ${SOURCES})
+target_include_directories(rush-hour-solver PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # Link libraries (automatically handled by vcpkg + find_package)
 find_package(raylib CONFIG REQUIRED)
