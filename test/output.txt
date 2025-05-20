@@ -1,0 +1,28 @@
+Papan Awal
+  K   
+ABBC. 
+A.PC. 
+A.PC. 
+..... 
+..... 
+Gerakan 1:A-Bawah
+  K   
+.BBC. 
+..PC. 
+A.PC. 
+A.... 
+A.... 
+Gerakan 2:B-Kiri
+  K   
+BB.C. 
+..PC. 
+A.PC. 
+A.... 
+A.... 
+Gerakan 3:D-Atas
+  K   
+BBPC. 
+..PC. 
+A..C. 
+A.... 
+A.... 
