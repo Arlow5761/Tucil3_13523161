@@ -119,7 +119,7 @@ void BoardState::AddPiece(const Piece piece, const size_t x, const size_t y)
             assert(false);
     }
 
-    if (x + xdiff * piece.GetSize() >= width || y + ydiff * piece.GetSize() >= height)
+    if (x + xdiff * piece.GetSize() > width || y + ydiff * piece.GetSize() > height)
     {
         return;
     }
@@ -410,14 +410,14 @@ bool BoardState::IsSolved() const
         else
         {
             x = width - (exit - height - width) - 1;
-            y = height;
+            y = height - 1;
         }
     }
     else
     {
         if (exit < width + height)
         {
-            x = width;
+            x = width - 1;
             y = exit - width;
         }
         else

@@ -5,11 +5,13 @@ int BlockingCarsCost::GetCost(const BoardState& boardState) const
     int primaryPiece = boardState.GetPrimaryPieceIndex();
     
     if (primaryPiece == -1) return 0;
+    if (boardState.IsSolved()) return 0;
     
     int x = boardState.GetPiecePosition(primaryPiece).first;
     int y = boardState.GetPiecePosition(primaryPiece).second;
     
     int cost = 0;
+
 
     if (boardState.GetExit() < 0)
     {

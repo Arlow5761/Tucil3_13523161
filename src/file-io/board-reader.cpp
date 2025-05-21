@@ -7,7 +7,7 @@ bool BoardReader::ReadBoard(std::istream& stream, BoardState* target, std::unord
 {
     int width, height;
 
-    stream >> width >> height;
+    stream >> height >> width;
 
     if (width <= 0 || height <= 0)
     {
@@ -154,6 +154,7 @@ bool BoardReader::ReadBoard(std::istream& stream, BoardState* target, std::unord
 
             if (i == startX + width && j == startY + height)
             {
+                mapping.clear();
                 delete[] grid;
                 return false;
             }

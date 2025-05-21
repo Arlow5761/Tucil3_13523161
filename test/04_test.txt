@@ -1,0 +1,8 @@
+6 6
+9
+ ..AABB
+ .CCD..
+ .E.DFF
+K.E.PPG
+ .E..HG
+ .IIIHG
