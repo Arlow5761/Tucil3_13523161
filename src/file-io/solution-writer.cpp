@@ -1,24 +1,9 @@
 #include <unordered_map>
 #include "file-io/solution-writer.hpp"
 
-void SolutionWriter::WriteSolution(std::ostream& stream, Solution solution)
+void SolutionWriter::WriteSolution(std::ostream& stream, Solution solution, const std::unordered_map<int, char>& mapping)
 {
     BoardState board(solution.initialBoard);
-
-    std::unordered_map<int, char> mapping;
-
-    mapping.insert(std::make_pair(-1, '.'));
-    char curchar = 'A';
-    for (int i = 0; i < board.GetPieceCount(); i++)
-    {
-        if (curchar == 'K' || curchar == 'P')
-        {
-            curchar++;
-        }
-
-        mapping.insert(std::make_pair(i, curchar));
-        curchar++;
-    }
 
     stream << "Papan Awal\n";
     WriteBoard(stream, board, mapping, -2);

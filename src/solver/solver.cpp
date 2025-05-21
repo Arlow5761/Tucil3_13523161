@@ -162,7 +162,14 @@ Solution Solver::Solve() const
                 newNode->moves.push_back(Move(i, j));
                 newNode->cumCost += cumHeuristic->GetCost(*inputBoard, newNode->moves);
 
-                neighbourSet.insert(newNode);
+                if (visitedSet.find(newNode) == visitedSet.end())
+                {
+                    neighbourSet.insert(newNode);
+                }
+                else
+                {
+                    delete newNode;
+                }
             }
         }
     }

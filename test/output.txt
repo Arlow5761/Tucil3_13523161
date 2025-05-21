@@ -5,24 +5,52 @@ A.PC.
 A.PC. 
 ..... 
 ..... 
-Gerakan 1:A-Bawah
+Gerakan 1:P-Bawah
   K   
-.BBC. 
-..PC. 
-A.PC. 
-A.... 
-A.... 
-Gerakan 2:B-Kiri
-  K   
-BB.C. 
-..PC. 
-A.PC. 
-A.... 
-A.... 
-Gerakan 3:D-Atas
-  K   
-BBPC. 
-..PC. 
+ABBC. 
 A..C. 
+A..C. 
+..P.. 
+..P.. 
+Gerakan 2:P-Atas
+  K   
+ABBC. 
+A..C. 
+A.PC. 
+..P.. 
+..... 
+Gerakan 3:C-Bawah
+  K   
+ABB.. 
 A.... 
+A.PC. 
+..PC. 
+...C. 
+Gerakan 4:B-Kanan
+  K   
+A..BB 
 A.... 
+A.PC. 
+..PC. 
+...C. 
+Gerakan 5:P-Bawah
+  K   
+A..BB 
+A.... 
+A..C. 
+..PC. 
+..PC. 
+Gerakan 6:P-Atas
+  K   
+A..BB 
+A.P.. 
+A.PC. 
+...C. 
+...C. 
+Gerakan 7:P-Atas
+  K   
+A.PBB 
+A.P.. 
+A..C. 
+...C. 
+...C. 

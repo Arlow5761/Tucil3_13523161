@@ -55,15 +55,19 @@ int main()
     std::string filename = "No File Selected";
     BoardState* board = nullptr;
     std::unordered_map<int, Car> cars;
+    std::unordered_map<int, char> carLabels;
     int selectedAlgorithm = 0;
     bool dropdownActive = false;
     
     Solution* solution = nullptr;
     std::vector<const char*> moveLabels;
     int moveScrollIndex = 0;
-    int moveListActive = 0;
-    int moveListFocus = 0;
+    int moveListActive = -1;
+    int moveListFocus = -1;
     int moveIndex = 0;
+    int highlightedCar = -1;
+    bool autoEnabled = false;
+    float timer = 0;
 
     InitWindow(screenWidth, screenHeight, "Rush Hour Solver");
 
@@ -198,6 +202,10 @@ int main()
                         {
                             color = YELLOW;
                         }
+                        else if (pair.first == highlightedCar || pair.second.lerp < 1.0f)
+                        {
+                            color = RED;
+                        }
 
                         DrawCube({ x, 0.3f, y }, width, 0.4f, length, color);
                         DrawCube({ x, 0.5f, y }, headWidth, 0.4f, headLength, color);
@@ -225,12 +233,13 @@ int main()
                 {
                     std::ifstream filestream(filepath);
 
+                    cars.clear();
+                    carLabels.clear();
                     if (!filestream.fail())
                     {
                         BoardState* newBoard = new BoardState();
-                        if (BoardReader().ReadBoard(filestream, newBoard))
+                        if (BoardReader().ReadBoard(filestream, newBoard, carLabels))
                         {
-                            cars.clear();
                             if (board != nullptr) delete board;
                             board = newBoard;
 
@@ -265,11 +274,23 @@ int main()
                         else
                         {
                             delete newBoard;
+                            if (board != nullptr)
+                            {
+                                delete board;
+                                board = nullptr;
+                            }
+
                             filename = "Error reading file!";
                         }
                     }
                     else
                     {
+                        if (board != nullptr)
+                        {
+                            delete board;
+                            board = nullptr;
+                        }
+
                         filename = "Error opening file!";
                     }
                 }
@@ -280,7 +301,7 @@ int main()
 
                     if (!filestream.fail())
                     {
-                        SolutionWriter().WriteSolution(filestream, *solution);
+                        SolutionWriter().WriteSolution(filestream, *solution, carLabels);
                     }
                 }
                 break;
@@ -423,29 +444,7 @@ int main()
 
                             solution = new Solution(solver.Solve());
                             state = State::ShowingResult;
-                            moveIndex = 0;
-
-                            int pieceIndex = solution->moves[moveIndex].piece;
-                            Piece piece = board->GetPiece(pieceIndex);
-
-                            Car& car = cars.at(pieceIndex);
-                            car.lerp = 0;
-
-                            std::string label;
-                            switch (piece.GetOrientation())
-                            {
-                                case Piece::Orientation::Horizontal:
-                                    label = "Move Horizontal";
-                                    car.xCurrent += solution->moves[moveIndex].offset;
-                                break;
-                                case Piece::Orientation::Vertical:
-                                    label = "Move Vertical";
-                                    car.yCurrent += solution->moves[moveIndex].offset;
-                                break;
-                            }
-                            char* str = new char[label.size() + 1];
-                            strncpy(str, label.c_str(), label.size() + 1);
-                            moveLabels.push_back(str);
+                            moveIndex = -1;
 
                             continue;
                         }
@@ -458,12 +457,26 @@ int main()
 
                     if (moveIndex + 1 < static_cast<int>(solution->moves.size()))
                     {
-                        if (GuiButton(Rectangle{ 20, screenHeight - 80, sidebarWidth - 40, 40 }, "Next"))
+                        GuiCheckBox(Rectangle{ 20, screenHeight - 130, 40, 40 }, "Auto", &autoEnabled);
+                        
+                        if (autoEnabled)
                         {
-                            int pieceIndex = solution->moves[moveIndex].piece;
-                            Piece piece = board->GetPiece(pieceIndex);
+                            timer += GetFrameTime();
+                        }
+                        else
+                        {
+                            timer = 0.9f;
+                        }
 
+                        if (GuiButton(Rectangle{ 20, screenHeight - 80, sidebarWidth - 40, 40 }, "Next") || timer >= 1.0f)
+                        {
+                            timer = 0.0f;
+
+                            if (moveIndex >= 0)
                             {
+                                int pieceIndex = solution->moves[moveIndex].piece;
+                                Piece piece = board->GetPiece(pieceIndex);
+
                                 Car& car = cars.at(pieceIndex);
                                 car.lerp = 1;
                                 car.xPast = car.xCurrent;
@@ -472,21 +485,39 @@ int main()
 
                             moveIndex++;
 
-                            pieceIndex = solution->moves[moveIndex].piece;
-                            piece = board->GetPiece(pieceIndex);
+                            Move move = solution->moves[moveIndex];
+                            int pieceIndex = move.piece;
+                            Piece piece = board->GetPiece(pieceIndex);
 
                             Car& car = cars.at(pieceIndex);
                             car.lerp = 0;
 
-                            std::string label;
+                            std::string label = std::string(1, carLabels.at(pieceIndex)) + " : ";
                             switch (piece.GetOrientation())
                             {
                                 case Piece::Orientation::Horizontal:
-                                    label = "Move Horizontal";
+                                    if (move.offset < 0)
+                                    {
+                                        label += std::to_string(-move.offset) + " West";
+                                    }
+                                    else
+                                    {
+                                        label += std::to_string(move.offset) + " East";
+                                    }
+
+
                                     car.xCurrent += solution->moves[moveIndex].offset;
                                 break;
                                 case Piece::Orientation::Vertical:
-                                    label = "Move Vertical";
+                                    if (move.offset < 0)
+                                    {
+                                        label += std::to_string(-move.offset) + " North";
+                                    }
+                                    else
+                                    {
+                                        label += std::to_string(move.offset) + " South";
+                                    }
+
                                     car.yCurrent += solution->moves[moveIndex].offset;
                                 break;
                             }
@@ -497,6 +528,9 @@ int main()
                     }
                     else
                     {
+                        autoEnabled = false;
+                        timer = 0.0f;
+
                         if (GuiButton(Rectangle{ 20, screenHeight - 130, sidebarWidth - 40, 40 }, "Save"))
                         {
                             fileDialog.saveFileMode = true;
@@ -510,6 +544,7 @@ int main()
                             delete solution;
                             solution = nullptr;
                             cars.clear();
+                            carLabels.clear();
 
                             delete board;
                             board = nullptr;
@@ -521,14 +556,29 @@ int main()
                             }
 
                             moveLabels.clear();
+                            
+                            autoEnabled = false;
 
                             state = State::Configuring;
+
+                            EndDrawing();
+
+                            continue;
                         }
                     }
 
                     if (solution->moves.size() > 0)
                     {
                         GuiListViewEx(Rectangle{ 20, 110, sidebarWidth - 40, screenHeight - 300 }, moveLabels.data(), moveLabels.size(), &moveScrollIndex, &moveListActive, &moveListFocus);
+
+                        if (moveListFocus >= 0)
+                        {
+                            highlightedCar = solution->moves[moveListFocus].piece;
+                        }
+                        else
+                        {
+                            highlightedCar = -1;
+                        }
                     }
                     else
                     {

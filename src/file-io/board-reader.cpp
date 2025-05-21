@@ -3,7 +3,7 @@
 #include <unordered_set>
 #include "file-io/board-reader.hpp"
 
-bool BoardReader::ReadBoard(std::istream& stream, BoardState* target)
+bool BoardReader::ReadBoard(std::istream& stream, BoardState* target, std::unordered_map<int, char>& mapping)
 {
     int width, height;
 
@@ -119,8 +119,6 @@ bool BoardReader::ReadBoard(std::istream& stream, BoardState* target)
 
     *target = BoardState(width, height, exit);
 
-    std::unordered_set<char> seenChars({'.'});
-
     for (int j = startY; j < startY + height; j++)
     {
         for (int i = startX; i < startX + width; i++)
@@ -133,12 +131,23 @@ bool BoardReader::ReadBoard(std::istream& stream, BoardState* target)
                 return false;
             }
 
-            if (seenChars.find(c) != seenChars.end())
+            if (c == '.')
             {
                 continue;
             }
 
-            seenChars.insert(c);
+            bool cont = false;
+            for (auto itr = mapping.begin(); itr != mapping.end(); itr++)
+            {
+                if (itr->second == c)
+                {
+                    cont = true;
+                    break;
+                }
+            }
+            if (cont) continue;
+
+            mapping.insert(std::make_pair((int) target->GetPieceCount(), c));
 
             Piece::Orientation orientation;
             size_t size = 1;
@@ -187,6 +196,7 @@ bool BoardReader::ReadBoard(std::istream& stream, BoardState* target)
 
             if (size == 1)
             {
+                mapping.clear();
                 delete[] grid;
                 return false;
             }
@@ -207,6 +217,7 @@ bool BoardReader::ReadBoard(std::istream& stream, BoardState* target)
                     }
                     else
                     {
+                        mapping.clear();
                         delete[] grid;
                         return false;
                     }
@@ -223,6 +234,7 @@ bool BoardReader::ReadBoard(std::istream& stream, BoardState* target)
                     }
                     else
                     {
+                        mapping.clear();
                         delete[] grid;
                         return false;
                     }
